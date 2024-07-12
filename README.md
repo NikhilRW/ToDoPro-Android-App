@@ -98,7 +98,6 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a Pull Request.
 6. 
 ## Contact
-
-Your Name - Nikhil Wankhede - nikhilwankhede0707@gmail.com
+Nikhil Wankhede - nikhilwankhede0707@gmail.com
 
 Project Link: [https://github.com/NikhilRW/ToDoPro-Android-App](https://github.com/NikhilRW/ToDoPro-Android-App/)
