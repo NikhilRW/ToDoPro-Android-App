@@ -1,4 +1,5 @@
 # Todopro App
+![](app/src/main/res/drawable/to_do_list.png)  
 
 Todopro is a feature-rich to-do list Android application designed to help you manage your tasks efficiently. It allows you to create, edit, and delete tasks with ease. The app uses RecyclerView to display tasks and SQLite for task management. Additionally, it supports GIFs for a more interactive user experience.
 
