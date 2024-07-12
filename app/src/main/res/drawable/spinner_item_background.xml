@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected state -->
+    <item android:state_selected="true">
+        <color android:color="@color/myBlue"/>   <!-- Background color when selected -->
+    </item>
+    <!-- Default state -->
+    <item>
+        <color android:color="@android:color/white"/>   <!-- Background color for other items -->
+    </item>
+</selector>

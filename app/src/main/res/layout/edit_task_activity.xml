@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/home_gradient"
+    android:elevation="0dp">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#016BAB"
+        android:elevation="20dp"
+        app:collapseIcon="@drawable/leftarrow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:popupTheme="@style/Theme.ToDoList.PopupOverlay"
+        app:titleTextColor="#FFFFFF">
+
+        <ImageButton
+            android:id="@+id/delete_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end"
+            android:layout_marginRight="15dp"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="#FFFFFF"
+            android:contentDescription="Delete"
+            android:scaleType="fitCenter"
+            android:src="@drawable/delete"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/perviousActivity"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/leftarrow"
+            android:scaleType="fitCenter"
+            tools:layout_editor_absoluteX="16dp" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ImageButton
+        android:id="@+id/updateTask"
+        android:layout_width="78dp"
+        android:layout_height="78dp"
+        android:backgroundTint="#00000000"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.951"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.973"
+        app:srcCompat="@drawable/bluecheck" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="616dp"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <include
+            layout="@layout/editname_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            layout="@layout/setduedate_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            layout="@layout/taskcategoryselectfragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

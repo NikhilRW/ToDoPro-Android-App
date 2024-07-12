@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#016BAB"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#016BAB"
+        android:theme="@style/Theme.ToDoList.AppBarOverlay">
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <include layout="@layout/content_main" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addDetailedTask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:contentDescription="TODO"
+        android:elevation="-13dp"
+        android:layout_marginBottom="87dp"
+        android:backgroundTint="#B1B0B0"
+        app:srcCompat="@drawable/plus" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#016BAB"
+        android:backgroundTint="#016BAB"
+        android:elevation="20dp"
+        app:layout_anchor="@+id/appBarLayout"
+        app:layout_anchorGravity="center"
+        app:logo="@drawable/side_nav_bar"
+        app:popupTheme="@style/Theme.ToDoList.PopupOverlay"
+        app:titleTextColor="#FFFFFF" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#0474B8">
+
+        <EditText
+            android:id="@+id/quickTask"
+            android:layout_width="300dp"
+            android:layout_height="71dp"
+            android:background="#0474B8"
+            android:hint="Enter A Quick Task Here"
+            android:padding="15dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88D1FF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ImageButton
+            android:id="@+id/addQuickTask"
+            android:layout_width="97dp"
+            android:layout_height="58dp"
+            android:backgroundTint="#00FFFFFF"
+            android:maxWidth="50dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/check"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/quickTask"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.461" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

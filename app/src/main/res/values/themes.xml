@@ -1,0 +1,45 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme -->
+    <style name="Theme.ToDoList" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/myBlue</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/myBlue</item>
+        <item name="colorSecondaryVariant">@color/myBlue</item>
+        <item name="colorOnSecondary">@color/myBlue</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">#004B78</item>
+    </style>
+    <!-- Theme without ActionBar -->
+    <style name="Theme.ToDoList.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:searchViewStyle">@style/CustomSearchView</item>
+    </style>
+    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:searchIcon">@android:color/white</item>
+        <item name="android:actionModeCloseButtonStyle">@android:color/white</item>
+    </style>
+    <!-- Custom style for AlertDialog -->
+    <style name="CustomAlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:textColorPrimary">#0087D7</item>
+        <item name="android:textColor">#0087D7</item>
+    </style>
+
+    <!-- AppBarOverlay style -->
+    <style name="Theme.ToDoList.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <!-- SpinnerStyle -->
+    <style name="SpinnerStyle">
+        <item name="android:dropDownSelector">@color/white</item>
+    </style>
+
+    <!-- PopupOverlay style -->
+    <style name="Theme.ToDoList.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+</resources>
