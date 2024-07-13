@@ -12,6 +12,6 @@
         android:backgroundTint="@color/black"
         android:hint="Enter your input"
         android:textColor="@color/black"
-        android:textColorHint="@color/black" />
+        android:textColorHint="#4B4B4B" />
 
 </LinearLayout>

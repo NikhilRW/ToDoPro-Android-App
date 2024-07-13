@@ -21,14 +21,10 @@ public class NotificationReciever extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         int taskId = intent.getIntExtra("task_id", 0);
         String taskName = intent.getStringExtra("task_name");
-        MainActivity mainActivity =new MainActivity();
         // Ensure notification channel is created
         Notify.createNotificationChannel(context);
         // Intent to open MainActivity or any other activity
         Intent openAppIntent = new Intent(context, MainActivity.class);
-        ToDoDatabaseManager toDoDatabaseManager = new ToDoDatabaseManager(context.getApplicationContext());
-        toDoDatabaseManager.open();
-        openAppIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, openAppIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         // Build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, Notify.CHANNEL_ID)

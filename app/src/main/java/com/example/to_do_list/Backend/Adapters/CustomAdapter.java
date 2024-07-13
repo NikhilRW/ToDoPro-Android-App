@@ -27,7 +27,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder>  {
         this.arr = arr;
         this.mainActivity = mainActivity;
         arrFiltered= new ArrayList<>(arr);
-        mainActivity.nothingToDo(arr.isEmpty());
+        if(mainActivity.isSearching&&arr.isEmpty()){
+            mainActivity.noSearchResults(true);
+            mainActivity.nothingToDo(false);
+        }
+        else{
+            mainActivity.nothingToDo(arr.isEmpty());
+            mainActivity.noSearchResults(false);
+        }
         this.arr2=arr2;
     }
     @NonNull
@@ -38,7 +45,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder>  {
     }
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position){
-        Log.d("nik", "onBindViewHolder: "+position);
         try {
             holder.checkBox.setChecked(mainActivity.toDoDatabaseManager.getTaskDetails(arr2.get(position)).getIsCompleted() == 1);
             if(arrFiltered.get(position).length()>25){

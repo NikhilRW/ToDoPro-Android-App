@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     private static final String PREFS_NAME = "MyPrefsFile";
     private static final String KEY_DEFAULT_TASKS_ADDED = "defaultTasksAdded";
     private static final int REQUEST_CODE_EDIT_TASK = 1;
+    public boolean isSearching = false;
     private static final String TAG = "nikh";
     private static final int REQUEST_CODE_ADD_TASK = 2;
     public String taskCategoryBeforeChill="Default";
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     EditText quickTask;
     public boolean isShowOnlyNotCompleted=true;
     CustomAdapter customAdapter;
-    LinearLayout nothingJustChill;
+    LinearLayout nothingJustChill,noSearchResults;
     ImageButton addQuickTask;
     SearchView searchView;
     Toolbar toolbar;
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 toDoDatabaseManager.addTask(quickTask.getText().toString(),0,taskCategory);
                     refreshAllTaskOf(taskCategory);
             }
+            quickTask.setText("");
         });
 
         quickTask.addTextChangedListener(new TextWatcher() {
@@ -192,16 +195,27 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        SearchManager searchManager = null;
+        SearchManager searchManager ;
         searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
+        searchView.setOnSearchClickListener(v->{
+            changeSearchIconColor();});
+        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
-            public void onClick(View v) {
-                Drawable navigationIcon = toolbar.getCollapseIcon();
-                if (navigationIcon != null) {
-                    navigationIcon.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
-                }
+            public boolean onMenuItemActionExpand(MenuItem item) {return true;}
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                // Handle the search view collapse here
+                isSearching = false;
+                noSearchResults(false);
+                refreshAllTask();
+                return true; // Return true to allow collapse
+            }
+        });
+        searchView.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                isSearching = false;
             }
         });
         searchView.setQueryHint(getResources().getString(R.string.search));
@@ -231,6 +245,13 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         });
         searchView.setIconifiedByDefault(false);
         return true;
+    }
+    private void changeSearchIconColor(){
+        Drawable navigationIcon = toolbar.getCollapseIcon();
+        isSearching=true;
+        if (navigationIcon != null) {
+            navigationIcon.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
+        }
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -342,6 +363,9 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                 }
             }
         }
+        if(arrOfTaskName.isEmpty()&&arrOfIds.isEmpty()){
+
+        }
         recyclerView.setAdapter(new CustomAdapter(this,arrOfTaskName,this,arrOfIds));
     }
     public void nothingToDo(boolean isNothingToDo){
@@ -351,6 +375,15 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         }
         else{
             nothingJustChill.setVisibility(View.GONE);
+        }
+    }
+    public void noSearchResults(boolean isNoSearchResults){
+        noSearchResults=findViewById(R.id.noSearchResultFound);
+        if(isNoSearchResults){
+            noSearchResults.setVisibility(View.VISIBLE);
+        }
+        else{
+            noSearchResults.setVisibility(View.GONE);
         }
     }
     public void setSupportActionBarTitle(String title){
