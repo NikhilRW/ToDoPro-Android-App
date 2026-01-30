@@ -1,14 +1,15 @@
-package com.example.to_do_list.ui.home;
+package com.example.to_do_list.Frontend.slideshow;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-public class HomeViewModel extends ViewModel {
+
+public class SlideshowViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public HomeViewModel() {
+    public SlideshowViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
     }
 
     public LiveData<String> getText() {

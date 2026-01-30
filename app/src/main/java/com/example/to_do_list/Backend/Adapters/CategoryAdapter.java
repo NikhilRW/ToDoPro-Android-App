@@ -15,7 +15,7 @@ public class CategoryAdapter  extends RecyclerView.Adapter<CategoryViewHolder> {
     private ArrayList<String> arr;
     ArrayList<String> allCategories;
     private MainActivity mainActivity;
-
+    
     public CategoryAdapter(Context context, ArrayList<String> arr, MainActivity mainActivity) {
         this.context = context;
         this.arr = arr;

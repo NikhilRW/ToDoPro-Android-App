@@ -1,28 +1,30 @@
-package com.example.to_do_list.ui.home;
+package com.example.to_do_list.Frontend.gallery;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.to_do_list.databinding.FragmentHomeBinding;
+import com.example.to_do_list.databinding.FragmentGalleryBinding;
 
-public class HomeFragment extends Fragment {
+public class GalleryFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
+    private FragmentGalleryBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        GalleryViewModel galleryViewModel =
+                new ViewModelProvider(this).get(GalleryViewModel.class);
+
+        binding = FragmentGalleryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-//        final TextView textView = binding.textHome;
-//        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
+
+//        galleryViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

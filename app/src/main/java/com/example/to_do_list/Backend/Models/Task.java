@@ -3,13 +3,15 @@ package com.example.to_do_list.Backend.Models;
 public class Task {
     int id,isCompleted;
     long  dueDate;
-    String name,taskCategory;
-    public Task(int id, int isCompleted, long dueDate, String name, String taskCategory) {
+    String name,taskCategory,attachment;
+    public Task(int id, int isCompleted, long dueDate, String name, String taskCategory,
+                String attachment) {
         this.id = id;
         this.isCompleted = isCompleted;
         this.dueDate = dueDate;
         this.name = name;
         this.taskCategory = taskCategory;
+        this.attachment = attachment;
     }
 
     public int getId() {
@@ -27,9 +29,16 @@ public class Task {
     public void setIsCompleted(int isCompleted) {
         this.isCompleted = isCompleted;
     }
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
+    }
 
     public long getDueDate() {
         return dueDate;
+    }
+
+    public String getAttachment(){
+        return attachment;
     }
 
     public void setDueDate(long dueDate) {

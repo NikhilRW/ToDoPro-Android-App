@@ -1,4 +1,4 @@
-package com.example.to_do_list.ui.gallery;
+package com.example.to_do_list.Frontend.gallery;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

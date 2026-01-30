@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import com.example.to_do_list.Backend.Database.MyDatabaseHelper;
 import com.example.to_do_list.Backend.Models.Task;
+
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,10 +33,19 @@ public class ToDoDatabaseManager {
                 String taskName = cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_taskName));
                 long dueDate = cursor.getLong(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_dueDate));
                 int isCompleted = cursor.getInt(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_isCompleted));
-                tasks.add(new Task(id,isCompleted,dueDate,taskName,taskCategory));
+                String attachment = cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_attachment));
+                tasks.add(new Task(id,isCompleted,dueDate,taskName,taskCategory,attachment));
             }
             cursor.close();
             return tasks;
+    }
+
+    public void addOrUpdateAttachment(String taskId,String filepath){
+        ContentValues values = new ContentValues();
+        values.put("attachment", filepath);
+        String selection = "taskId = ?";
+        String[] selectionArgs = { String.valueOf(taskId) };
+        db.update(MyDatabaseHelper.TABLE_NAME, values, selection, selectionArgs);
     }
     public ArrayList<String> fetchAllTaskNameOf(String taskCategory,boolean isNotCompletedOnly){
         ArrayList<String> tasksName = new ArrayList<String>();
@@ -93,13 +104,14 @@ public class ToDoDatabaseManager {
                 long dueDate = cursor.getLong(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_dueDate));
                 int isCompleted = cursor.getInt(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_isCompleted));
                 String taskCategory = cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_taskCategory));
-                tasks.add(new Task(id,isCompleted,dueDate,taskName,taskCategory));
+                String attachment = cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_attachment));
+                tasks.add(new Task(id,isCompleted,dueDate,taskName,taskCategory,attachment));
             }
             cursor.close();
             return tasks;
     }
     public Task getTaskDetails(int myTaskId){
-        Task task = new Task(0,0,0,"","");
+        Task task = new Task(0,0,0,"","",null);
         Cursor cursor = db.query(MyDatabaseHelper.TABLE_NAME, null, "taskId = ? ", new String[]{String.valueOf(myTaskId)}, null, null, "taskId");
         while (cursor.moveToNext()) {
             int id = cursor.getInt(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_taskId));
@@ -107,42 +119,74 @@ public class ToDoDatabaseManager {
             long dueDate = cursor.getLong(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_dueDate));
             int isCompleted = cursor.getInt(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_isCompleted));
             String taskCategory = cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_taskCategory));
-            task= new Task(id,isCompleted,dueDate,taskName,taskCategory);
+            String attachment = cursor.getString(cursor.getColumnIndexOrThrow(MyDatabaseHelper.COLUMN_attachment));
+            task = new Task(id,isCompleted,dueDate,taskName,taskCategory,attachment);
         }
         cursor.close();
         return task;
     }
+    private ContentValues getContentValues(Integer taskId,String taskName, int isCompleted,String taskCategory,String attachmentFilePath,Long dueDate){
+        ContentValues values = getContentValues(taskName,isCompleted,taskCategory,attachmentFilePath,dueDate);
+        if(taskId != null){
+            values.put(MyDatabaseHelper.COLUMN_taskId, taskId);
+        }
+        return values;
+    }
+
+    private ContentValues getContentValues(String taskName, int isCompleted,String taskCategory,String attachmentFilePath,Long dueDate){
+        ContentValues values = new ContentValues();
+        if(taskName != null){
+            values.put(MyDatabaseHelper.COLUMN_taskName, taskName);
+        }
+        if(isCompleted == 1 || isCompleted == 0){
+            values.put(MyDatabaseHelper.COLUMN_isCompleted, isCompleted);
+        }
+        if(taskCategory != null){
+            values.put(MyDatabaseHelper.COLUMN_taskCategory,taskCategory);
+        }
+        else{
+            values.put(MyDatabaseHelper.COLUMN_taskCategory, "default");
+        }
+        if(attachmentFilePath != null){
+            values.put( MyDatabaseHelper.COLUMN_attachment, attachmentFilePath);
+        }
+        if(dueDate != null){
+            values.put( MyDatabaseHelper.COLUMN_dueDate, dueDate);
+        }
+        return values;
+    }
     // Add A Task
     public void addTask(String taskName, int isCompleted,String taskCategory) {
-        ContentValues values = new ContentValues();
-        values.put("taskName", taskName);
-        values.put("isCompleted", isCompleted);
-        values.put("taskCategory", taskCategory);
+        ContentValues values = getContentValues(taskName,isCompleted,taskCategory,null,null);
         long result = db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
         Log.d("insertUser", "insertUser Result :  "+result);
     }
-    public void addTask(String taskName, int isCompleted,long dueDate,String taskCategory) {
-        ContentValues values = new ContentValues();
-        values.put("taskName", taskName);
-        values.put("dueDate", dueDate);
-        values.put("isCompleted", isCompleted);
-        values.put("taskCategory", taskCategory);
+    public void addTask(String taskName, int isCompleted,String taskCategory,String attachmentFilePath) {
+        ContentValues values = getContentValues(taskName,isCompleted,taskCategory,attachmentFilePath,null);
+        long result = db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
+        Log.d("insertUser", "insertUser Result :  "+result);
+    }
+
+    public void addTask(String taskName, int isCompleted,long dueDate,String taskCategory,String attachmentFilePath) {
+        ContentValues values = getContentValues(taskName,isCompleted,taskCategory,attachmentFilePath,dueDate);
         long result = db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
         Log.d("insertUser", "insertUser Result :  "+result);
     }
     // Update a Task details
     public int updateTask(int taskId,String taskName,int isCompleted,long dueDate,String taskCategory) {
-        ContentValues values = new ContentValues();
-        values.put("taskName", taskName);
-        values.put("isCompleted", isCompleted);
-        if(dueDate!=0){
-          values.put("dueDate", dueDate);
-        }
-        values.put("taskCategory", taskCategory);
+        ContentValues values = getContentValues(taskId,taskName,isCompleted,taskCategory,null,dueDate);
         String selection = "taskId = ?";
         String[] selectionArgs = { String.valueOf(taskId) };
         return db.update(MyDatabaseHelper.TABLE_NAME, values, selection, selectionArgs);
     }
+    public int updateTask(int taskId,String taskName,int isCompleted,long dueDate,String taskCategory,String attachmentFilePath) {
+        ContentValues values = getContentValues(taskId,taskName,isCompleted,taskCategory,attachmentFilePath,dueDate);
+        String selection = "taskId = ?";
+        String[] selectionArgs = { String.valueOf(taskId) };
+        return db.update(MyDatabaseHelper.TABLE_NAME, values, selection, selectionArgs);
+    }
+
+
     public int setIsCompleted(int taskId,int isCompleted) {
         ContentValues values = new ContentValues();
         values.put("isCompleted", isCompleted);

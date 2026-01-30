@@ -9,6 +9,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_taskId= "taskId";
     public static final String COLUMN_dueDate= "dueDate";
     public static final String COLUMN_taskName= "taskName";
+    public static final String COLUMN_attachment= "attachment";
     public static final String COLUMN_isCompleted= "isCompleted";
     public static final String COLUMN_taskCategory= "taskCategory";
     private static final int DATABASE_VERSION = 2;
@@ -17,7 +18,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE "+TABLE_NAME+" (taskId INTEGER PRIMARY KEY AUTOINCREMENT,taskCategory TEXT DEFAULT 'Default', taskName TEXT,isCompleted INTEGER DEFAULT 0,dueDate INTEGER DEFAULT 0);");
+        db.execSQL("CREATE TABLE "+TABLE_NAME+" (taskId INTEGER PRIMARY KEY AUTOINCREMENT,taskCategory TEXT DEFAULT 'Default', taskName TEXT,isCompleted INTEGER DEFAULT 0,dueDate INTEGER DEFAULT 0,attachment TEXT);");
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}

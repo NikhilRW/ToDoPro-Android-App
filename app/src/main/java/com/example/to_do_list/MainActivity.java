@@ -1,6 +1,5 @@
 package com.example.to_do_list;
 import android.app.AlertDialog;
-import android.app.SearchManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -31,8 +30,12 @@ import com.example.to_do_list.Backend.Adapters.CategoryAdapter;
 import com.example.to_do_list.Backend.Adapters.CustomAdapter;
 import com.example.to_do_list.Backend.Models.Task;
 import com.example.to_do_list.Backend.ToDoDatabaseManager;
-import com.example.to_do_list.ui.Acitivities.AddTaskActivity;
-import com.example.to_do_list.ui.Acitivities.EditTaskActivity;
+import com.example.to_do_list.Frontend.Acitivities.AddTaskActivity;
+import com.example.to_do_list.Frontend.Acitivities.EditTaskActivity;
+import com.google.ai.client.generativeai.GenerativeModel;
+import com.google.ai.client.generativeai.java.GenerativeModelFutures;
+import com.google.ai.client.generativeai.type.Content;
+import com.google.ai.client.generativeai.type.GenerateContentResponse;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -48,13 +51,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.to_do_list.databinding.ActivityMainBinding;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements Serializable {
     private AppBarConfiguration mAppBarConfiguration;
     private static final String PREFS_NAME = "MyPrefsFile";
+    String GEMINI_API_KEY ="AIzaSyAu36Bd26hVJOcFOVcbfRZnS2rXDrG1hCA";
     private static final String KEY_DEFAULT_TASKS_ADDED = "defaultTasksAdded";
     private static final int REQUEST_CODE_EDIT_TASK = 1;
     public boolean isSearching = false;
@@ -74,12 +83,33 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     Toolbar toolbar;
     boolean isDarkMode;
     FloatingActionButton addDetailedTask;
-    public  ToDoDatabaseManager toDoDatabaseManager;
+    public ToDoDatabaseManager toDoDatabaseManager;
     public ArrayList<Task> tasks = new ArrayList<Task>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         com.example.to_do_list.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        GenerativeModel gm = new GenerativeModel("gemini-1.5-flash",GEMINI_API_KEY);
+        GenerativeModelFutures model = GenerativeModelFutures.from(gm);
+        Content content = new Content.Builder().addText("Give a Task Example For ToDoApp Give A Single Line Of Task").build();
+        Executor executor = Executors.newSingleThreadExecutor();
+        ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
+        Futures.addCallback(
+                response,
+                new FutureCallback<GenerateContentResponse>() {
+                    @Override
+                    public void onSuccess(GenerateContentResponse result) {
+                        String resultText = result.getText();
+                        runOnUiThread(() -> quickTask.setText(resultText.split("\n")[0]));
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        t.printStackTrace();
+                    }
+                },
+                executor);
         nothingJustChill=findViewById(R.id.nothingJustChill);
         toDoDatabaseManager =new ToDoDatabaseManager(this);
         addDetailedTask=findViewById(R.id.addDetailedTask);
@@ -195,8 +225,8 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        SearchManager searchManager ;
-        searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchManager searchManager ;
+//        searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setOnSearchClickListener(v->{
             changeSearchIconColor();});
@@ -266,8 +296,9 @@ public class MainActivity extends AppCompatActivity implements Serializable {
             }
             if(isShowOnlyNotCompleted){
                         Toast.makeText(MainActivity.this, "Showing Uncompleted Task", Toast.LENGTH_SHORT).show();
-           }
-            else{
+            }
+            else
+            {
                         Toast.makeText(MainActivity.this, "Showing All Task", Toast.LENGTH_SHORT).show();
             }
                     refreshAllTaskOf(taskCategoryBeforeChill);
@@ -340,10 +371,22 @@ public class MainActivity extends AppCompatActivity implements Serializable {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_EDIT_TASK ||requestCode==REQUEST_CODE_ADD_TASK && resultCode == RESULT_OK) {
+            try{
                 String taskCategory =data.getStringExtra("taskCategory");
                 getSupportActionBar().setTitle(taskCategory);
                 refreshAllTaskOf(taskCategory);
                 refreshAllCategory();
+            } catch (Exception e) {
+//                throw new RuntimeException(e);
+                if(e.getMessage() != null){
+                Log.e("error",e.getMessage());
+                }
+                else{
+
+                Log.e("error","Some Error Occurred While Refreshing Task.");
+                }
+            }
+
         }
     }
     public  void filterCustomAdapter(String newText){

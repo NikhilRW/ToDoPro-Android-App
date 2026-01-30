@@ -1,4 +1,4 @@
-package com.example.to_do_list.ui.Acitivities;
+package com.example.to_do_list.Frontend.Acitivities;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -11,11 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,79 +21,79 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.example.to_do_list.Backend.Models.Task;
 import com.example.to_do_list.Backend.ToDoDatabaseManager;
-import com.example.to_do_list.MainActivity;
+import com.example.to_do_list.Frontend.attachments.Attachment;
 import com.example.to_do_list.R;
-import com.example.to_do_list.ui.NotificationChannel.NotificationReciever;
+import com.example.to_do_list.Frontend.NotificationChannel.NotificationReciever;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
-public class EditTaskActivity extends AppCompatActivity {
+public class AddTaskActivity extends AppCompatActivity {
     Toolbar toolbar;
-    ToDoDatabaseManager toDoDatabaseManager;
+    public ToDoDatabaseManager toDoDatabaseManager;
     EditText taskName,selectedDate,selectedTime;
-    ImageButton removeDate,removeTime,setTime,setDate,updateTask;
+    ImageButton removeDate,removeTime,setTime,setDate,addTask,previousActivity,addCategory,uploadButton;
     Spinner setCategory;
     boolean isUpdatedTask=true;
-    Task currentTask;
-    ArrayAdapter<String> dataAdapter;
     CheckBox isCompletedCheckBox;
-    ImageButton addCategory;
-    int id;
+    ArrayAdapter<String> dataAdapter;
     Toast toast;
+    Attachment attachment;
+    int PICKFILE_RESULT_CODE = 32;
+    public String attachmentFilePath = null;
+    public TextView currentAttachment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_task_activity);
+        ImageButton deleteButton = findViewById(R.id.delete_button);
+        deleteButton.setVisibility(View.GONE);
         taskName=findViewById(R.id.taskName);
+        attachment = new Attachment(this,true);
+        attachment.setupButton();
+        if(getIntent().getStringExtra("taskName")!=null){
+            taskName.setText(getIntent().getStringExtra("taskName"));
+        }
         isCompletedCheckBox=findViewById(R.id.isCompletedCheckBox);
+        isCompletedCheckBox.setVisibility(View.GONE);
         setCategory=findViewById(R.id.setCategory);
         selectedDate=findViewById(R.id.selectedDate);
-        selectedDate.setInputType(InputType.TYPE_NULL); // Disable keyboard input
-        selectedDate.setFocusable(false);
         selectedTime=findViewById(R.id.selectedTime);
-        selectedTime.setInputType(InputType.TYPE_NULL); // Disable keyboard input
-        selectedTime.setFocusable(false);
         addCategory=findViewById(R.id.addCategory);
         removeTime=findViewById(R.id.removeTime);
-        updateTask=findViewById(R.id.updateTask);
+        addTask=findViewById(R.id.updateTask);
         setTime=findViewById(R.id.setTime);
         setDate=findViewById(R.id.setDate);
         removeDate=findViewById(R.id.removeDate);
+        currentAttachment = findViewById(R.id.currentAttachment);
+        previousActivity = findViewById(R.id.perviousActivity);
+        uploadButton = findViewById(R.id.upload_btn);
+        previousActivity.setOnClickListener(v->{
+            showExitConfirmationDialog();
+        });
         toDoDatabaseManager = new ToDoDatabaseManager(this);
         toDoDatabaseManager.open();
         Intent intent = getIntent();
-        id = intent.getIntExtra("id",0);
-        currentTask=toDoDatabaseManager.getTaskDetails(id);
-        if(currentTask.getDueDate()!=0){
-            String[] arr = getDateTimeFromUnix(currentTask.getDueDate());
-            selectedDate.setText(arr[0]);
-            selectedTime.setText(arr[1]);
-        }
-        String message = "Task Updated";
+        String message = "Task Added";
         toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
         if(toast.getView()!=null){
             View toastView = toast.getView();
             toastView.getBackground().setColorFilter(Color.parseColor("#90EE90"), PorterDuff.Mode.SRC_IN); // Light green background
         }
-        isCompletedCheckBox.setChecked(    currentTask.getIsCompleted() == 1);
-        taskName.setText(    currentTask.getName());
         // Hide the default ActionBar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -107,7 +103,6 @@ public class EditTaskActivity extends AppCompatActivity {
         addOrRefreshCategoryInSpinner();
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         setCategory.setAdapter(dataAdapter);
-        setCategory.setSelection(toDoDatabaseManager.getAllTaskCategory().indexOf(currentTask.getTaskCategory()));
         // Set up the custom Toolbar as the ActionBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -117,35 +112,8 @@ public class EditTaskActivity extends AppCompatActivity {
         }
         toolbar.setNavigationIcon(navigationIcon);
         // Set up the delete button
-        ImageButton deleteButton = findViewById(R.id.delete_button);
-        ImageButton previousActivity = findViewById(R.id.perviousActivity);
-        previousActivity.setOnClickListener(v->{
-            setResult(RESULT_OK);
-            if(!isUpdatedTask){
-                showExitConfirmationDialog();
-            }
-            else{
-                setResult(RESULT_OK,getReturnIntent());
-                superBackPressed();
-            }
-        });
-        deleteButton.setOnClickListener(v->{
-            showDeleteConfirmationDialog();
-        });
         // Enable the back button in the ActionBar
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        isCompletedCheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(currentTask.getIsCompleted()==1!=isCompletedCheckBox.isChecked()){
-                    isUpdatedTask=false;
-                }
-            }
-        });
-        selectedDate.setOnClickListener(v->{
-            showDatePickerDialog();
-            isUpdatedTask=false;
-        });
         setDate.setOnClickListener(v->{
             showDatePickerDialog();
         });
@@ -156,15 +124,11 @@ public class EditTaskActivity extends AppCompatActivity {
             selectedTime.setText("");
         });
 
-        selectedTime.setOnClickListener(v->{
-            showTimePickerDialog();
-            isUpdatedTask=false;
-        });
         setTime.setOnClickListener(v -> {
             showTimePickerDialog();
         });
-        updateTask.setOnClickListener(v->{
-            updateTheTask();
+        addTask.setOnClickListener(v->{
+            addTask();
         });
         removeDate.setOnClickListener(v->{
             selectedDate.setText("");
@@ -172,87 +136,23 @@ public class EditTaskActivity extends AppCompatActivity {
         removeTime.setOnClickListener(v->{
             selectedTime.setText("");
         });
-        taskName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!taskName.getText().toString().equals(currentTask.getName())) {isUpdatedTask = false;}
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-        setCategory.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus){
-                    isUpdatedTask=false;
-                }
-            }
-        });
         addCategory.setOnClickListener(v->{
             showInputDialog();
-
+        });
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                showExitConfirmationDialog();
+            }
         });
     }
-    private  Intent getReturnIntent(){
-        Intent returnIntent=new Intent();
-        returnIntent.putExtra("taskCategory",toDoDatabaseManager.getTaskDetails(id).getTaskCategory());
-        return  returnIntent;
-    }
-    private  Intent getDeleteReturnIntent(){
-        Intent returnIntent=new Intent();
-        returnIntent.putExtra("taskCategory", setCategory.getSelectedItem().toString());
-        return  returnIntent;
-    }
-    private void addOrRefreshCategoryInSpinner(){
-        dataAdapter = new ArrayAdapter<String>(this, R.layout.custom_spinner_layout, toDoDatabaseManager.getAllTaskCategory()) {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView textView = view.findViewById(android.R.id.text1);
-                // Customize the dropdown item view here
-                if (position == setCategory.getSelectedItemPosition()) {
-                    view.setBackgroundColor(Color.parseColor("#016BAB")); // Selected item color
-                    textView.setTextColor(Color.WHITE);
-                } else {
-                    textView.setTextColor(Color.BLACK);
-                    view.setBackgroundColor(Color.WHITE); // Default item color
-                }
-                return view;
-            }
-        };
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        setCategory.setAdapter(dataAdapter);
-    }
     // Method to show the delete confirmation dialog
-    private void showDeleteConfirmationDialog() {
-
-        new AlertDialog.Builder(this,R.style.CustomAlertDialog)
-                .setTitle("Delete Task")
-                .setMessage("Are you sure you want to delete this task?")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Perform the delete action
-                          toDoDatabaseManager.deleteTask(id);
-                          setResult(RESULT_OK,getDeleteReturnIntent());
-                         superBackPressed();
-                    }
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .setIcon(R.drawable.delete)
-                .show();
-    }
-    private void superBackPressed(){
-        super.onBackPressed();
-    }
     private void showExitConfirmationDialog() {
         new AlertDialog.Builder(this,R.style.CustomAlertDialog)
                 .setTitle("Are You Sure ?")
-                .setMessage("Quit Without Saving")
+                .setMessage("Quit Without Adding Task")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        setResult(RESULT_OK,getReturnIntent());
                         superBackPressed();
                     }
                 })
@@ -260,12 +160,12 @@ public class EditTaskActivity extends AppCompatActivity {
                 .setIcon(R.drawable.delete)
                 .show();
     }
+
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -292,24 +192,37 @@ public class EditTaskActivity extends AppCompatActivity {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(EditTaskActivity.this,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                // Convert hourOfDay from 24-hour format to 12-hour format and determine AM/PM
-                boolean isPM = hourOfDay >= 12;
-                int hourIn12HourFormat = hourOfDay % 12;
-                if (hourIn12HourFormat == 0) {
-                    hourIn12HourFormat = 12;
-                }
-                String formattedTime = String.format(Locale.getDefault(), "%02d:%02d %s", hourIn12HourFormat, minute, isPM ? "PM" : "AM");
-                selectedTime.setText(formattedTime);
-            }
-        }, hour, minute, false);
+                    @Override
+                    public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
+                        calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                        calendar.set(Calendar.MINUTE, selectedMinute);
+                        updateSelectedTime(calendar);
+                    }
+                }, hour, minute, true);
 
         timePickerDialog.show();
     }
 
+    private void addOrRefreshCategoryInSpinner(){
+        dataAdapter = new ArrayAdapter<String>(this, R.layout.custom_spinner_layout, toDoDatabaseManager.getAllTaskCategory()) {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                // Customize the dropdown item view here
+                if (position == setCategory.getSelectedItemPosition()) {
+                    view.setBackgroundColor(Color.parseColor("#016BAB")); // Selected item color
+                    textView.setTextColor(Color.WHITE);
+                } else {
+                    view.setBackgroundColor(Color.WHITE); // Default item color
+                }
+                return view;
+            }
+        };
+
+    }
     // Method to update the TextView with the selected time
     private void updateSelectedTime(Calendar calendar) {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -318,7 +231,7 @@ public class EditTaskActivity extends AppCompatActivity {
         selectedTime.setText(timeString);
     }
     private long getUnixTime(String dateString, String timeString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         try {
             Date date = sdf.parse(dateString + " " + timeString);
             return date != null ? date.getTime() / 1000 : 0;
@@ -327,24 +240,16 @@ public class EditTaskActivity extends AppCompatActivity {
             return 0;
         }
     }
-
-    private String[] getDateTimeFromUnix(long unix) {
-        Date date = new Date(unix * 1000L); // Convert seconds to milliseconds
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-        return new String[]{dateFormat.format(date), timeFormat.format(date)};
-    }
-
-    private void updateTheTask(){
+    private void addTask(){
         if(taskName.getText().toString().isEmpty()){
             Toast.makeText(this, "Please Fill The Task Name And Category", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(!selectedDate.getText().toString().isEmpty()&&selectedTime.getText().toString().isEmpty()){
+        if(!selectedDate.getText().toString().isEmpty() && selectedTime.getText().toString().isEmpty()){
             Toast.makeText(this, "Please Select The Time For Due", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(selectedDate.getText().toString().isEmpty()&&!selectedTime.getText().toString().isEmpty()){
+        if(selectedDate.getText().toString().isEmpty() && !selectedTime.getText().toString().isEmpty()){
             Toast.makeText(this, "Please Select The Date For Due", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -352,36 +257,37 @@ public class EditTaskActivity extends AppCompatActivity {
         int isCompleted = isCompletedCheckBox.isChecked() ? 1:0;
         String selectedTaskCategory = setCategory.getSelectedItem().toString();
         long myDueDate;
+        Log.d("nikh", "filepath : "+attachmentFilePath);
         if(!selectedDate.getText().toString().isEmpty()&&!selectedTime.getText().toString().isEmpty()){
             myDueDate = getUnixTime(selectedDate.getText().toString(),selectedTime.getText().toString());
-            if(myDueDate*1000<new Date().getTime()){
+            if(myDueDate< (new Date().getTime()/1000)){
                 Toast.makeText(this, "Invalid Due Date", Toast.LENGTH_SHORT).show();
                 return;
             }
-            toDoDatabaseManager.updateTask(id,newTaskName,isCompleted,myDueDate,selectedTaskCategory);
-            scheduleNotification(EditTaskActivity.this,myDueDate,id,newTaskName);
+            toDoDatabaseManager.addTask(newTaskName,isCompleted,myDueDate,selectedTaskCategory,
+                    attachmentFilePath);
+            scheduleNotification(AddTaskActivity.this,myDueDate,newTaskName);
         }
         else{
-            toDoDatabaseManager.updateTask(id,newTaskName,isCompleted,0,selectedTaskCategory);
+            toDoDatabaseManager.addTask(newTaskName,isCompleted,selectedTaskCategory,attachmentFilePath);
         }
         toast.show();
-        setResult(RESULT_OK,getReturnIntent());
-        super.onBackPressed();
+        setResult(RESULT_OK,getReturnIntent(selectedTaskCategory));
+        superBackPressed();
     }
-    @Override
-    public void onBackPressed() {
-        showExitConfirmationDialog();
+    private void superBackPressed(){
+        getOnBackPressedDispatcher().onBackPressed();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         toDoDatabaseManager.close();
     }
-    public void scheduleNotification(Context context, long dueDateUnix, int taskId, String taskName) {
+    public void scheduleNotification(Context context, long dueDateUnix, String taskName) {
         Intent intent = new Intent(context, NotificationReciever.class);
-        intent.putExtra("task_id", taskId);
         intent.putExtra("task_name", taskName);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, dueDateUnix * 1000, pendingIntent);
     }
@@ -396,8 +302,10 @@ public class EditTaskActivity extends AppCompatActivity {
                 EditText editTextInput = customLayout.findViewById(R.id.editTextInput);
                 String input = editTextInput.getText().toString();
                 if (!input.isEmpty()) {
-                    toDoDatabaseManager.addTask(input+" Task",0,input);
+                    toDoDatabaseManager.addTask(input+" Task",0,input,attachmentFilePath);
                     addOrRefreshCategoryInSpinner();
+                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    setCategory.setAdapter(dataAdapter);
                 } else {
                     Toast.makeText(getApplicationContext(), "Please enter a task", Toast.LENGTH_SHORT).show();
                 }
@@ -413,4 +321,11 @@ public class EditTaskActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+    private Intent getReturnIntent(String taskCategory){
+        Intent returnIntent=new Intent();
+        returnIntent.putExtra("taskCategory",taskCategory);
+        return  returnIntent;
+    }
+
+
 }

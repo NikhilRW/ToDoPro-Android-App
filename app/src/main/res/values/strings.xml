@@ -12,5 +12,6 @@
     <string name="menu_slideshow">Personal</string>
     <string name="search">Enter Your Task</string>
     <string name="date_not_set">Date Not Set</string>
+    <string name="API_KEY">AIzaSyAu36Bd26hVJOcFOVcbfRZnS2rXDrG1hCA</string>
     <string name="time_not_set">Time Not Set</string>
 </resources>

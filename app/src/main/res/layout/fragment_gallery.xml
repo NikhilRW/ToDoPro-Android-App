@@ -6,4 +6,4 @@
     android:layout_height="match_parent"
     android:background="#016BAB"
     android:backgroundTint="#016BAB"
-    tools:context=".ui.gallery.GalleryFragment" />
+    tools:context=".Frontend.gallery.GalleryFragment" />

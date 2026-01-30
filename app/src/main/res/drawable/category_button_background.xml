@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed/Clicked State -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#0066B9"/> <!-- Darker shade when clicked -->
+            <corners android:radius="30dp"/>
+            <stroke
+                android:color="@color/neon"
+                android:width="3dp"/>
+        </shape>
+    </item>
+
+    <!-- Default/Not Clicked State -->
+    <item android:state_pressed="false">
+        <shape>
+            <solid android:color="#0070CB"/> <!-- Original color -->
+            <corners android:radius="30dp"/>
+            <stroke
+                android:color="@color/neon"
+                android:width="3dp"/>
+        </shape>
+    </item>
+</selector>

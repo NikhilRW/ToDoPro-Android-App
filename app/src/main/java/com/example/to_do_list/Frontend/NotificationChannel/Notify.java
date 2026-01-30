@@ -1,4 +1,4 @@
-package com.example.to_do_list.ui.NotificationChannel;
+package com.example.to_do_list.Frontend.NotificationChannel;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

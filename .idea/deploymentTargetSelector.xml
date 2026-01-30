@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="To-Do-List">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-07-11T09:53:21.434294Z">
+        <DropdownSelection timestamp="2024-07-14T08:24:04.604122800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\nikhi\.android\avd\Nikhil_Phone.avd" />

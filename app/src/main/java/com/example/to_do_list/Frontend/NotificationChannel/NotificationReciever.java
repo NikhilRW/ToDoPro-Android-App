@@ -1,7 +1,6 @@
-package com.example.to_do_list.ui.NotificationChannel;
+package com.example.to_do_list.Frontend.NotificationChannel;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +11,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.example.to_do_list.Backend.ToDoDatabaseManager;
 import com.example.to_do_list.MainActivity;
 import com.example.to_do_list.R;
 
